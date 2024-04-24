@@ -32,6 +32,7 @@ func Router() *gin.Engine {
 	comments := r.Group("/comments")
 	{
 		comments.POST("", controllers.CommentsController{}.CreateComment)
+		comments.GET("", controllers.CommentsController{}.GetCommentList)
 	}
 
 	return r

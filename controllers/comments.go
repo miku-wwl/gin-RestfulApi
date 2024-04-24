@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"context"
 	"net/http"
 	mongodb "restApi/models/mongo"
 	"restApi/pkg/logger"
@@ -28,10 +29,30 @@ func (com CommentsController) CreateComment(c *gin.Context) {
 	ret, err := mongodb.CreateComment(comment)
 
 	if err != nil {
-		logger.Error(map[string]interface{}{"[CreateComment] dao.MonCollection.InsertOne error:": err.Error()})
+		logger.Error(map[string]interface{}{"[CreateComment] mongodb.CreateComment error:": err.Error()})
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create comment"})
 		return
 	}
 
 	c.JSON(http.StatusCreated, gin.H{"id": ret.InsertedID.(primitive.ObjectID)})
+}
+
+func (com CommentsController) GetCommentList(c *gin.Context) {
+	cur, err := mongodb.GetCommentList()
+
+	if err != nil {
+		logger.Error(map[string]interface{}{"[GetCommentList] mongodb.GetCommentList error:": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch comments"})
+		return
+	}
+	defer cur.Close(context.Background())
+
+	var comments []mongodb.Comment
+	if err = cur.All(context.Background(), &comments); err != nil {
+		logger.Error(map[string]interface{}{"[GetCommentList] cur.All error:": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch comments"})
+		return
+	}
+
+	c.JSON(http.StatusOK, comments)
 }

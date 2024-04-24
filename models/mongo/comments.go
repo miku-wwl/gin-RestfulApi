@@ -5,6 +5,7 @@ import (
 	"restApi/dao"
 	"time"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -19,4 +20,9 @@ type Comment struct {
 func CreateComment(c Comment) (*mongo.InsertOneResult, error) {
 	ret, err := dao.MonCollection.InsertOne(context.Background(), c)
 	return ret, err
+}
+
+func GetCommentList() (*mongo.Cursor, error) {
+	cur, err := dao.MonCollection.Find(context.Background(), bson.M{})
+	return cur, err
 }
