@@ -26,7 +26,7 @@ func (com CommentsController) CreateComment(c *gin.Context) {
 		CommentText: commentReq.CommentText,
 		CreatedAt:   time.Now(),
 	}
-	ret, err := mongodb.CreateComment(comment)
+	ret, err := mongodb.CreateComment(&comment)
 
 	if err != nil {
 		logger.Error(map[string]interface{}{"[CreateComment] mongodb.CreateComment error:": err.Error()})
@@ -34,7 +34,7 @@ func (com CommentsController) CreateComment(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"id": ret.InsertedID.(primitive.ObjectID)})
+	c.JSON(http.StatusCreated, gin.H{"id": ret.InsertedID.(primitive.ObjectID), "comment": comment})
 }
 
 func (com CommentsController) GetCommentList(c *gin.Context) {
@@ -55,4 +55,25 @@ func (com CommentsController) GetCommentList(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, comments)
+}
+
+func (com CommentsController) UpdateComment(c *gin.Context) {
+	var updatedComment mongodb.Comment
+	if err := c.ShouldBindJSON(&updatedComment); err != nil {
+		logger.Error(map[string]interface{}{"[UpdateComment] c.ShouldBindJSON error:": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	updatedComment.CommentID = c.Param("id")
+	updatedComment.CreatedAt = time.Now()
+
+	_, err := mongodb.UpdateComment(updatedComment)
+
+	if err != nil {
+		logger.Error(map[string]interface{}{"[UpdateComment] mongodb.UpdateComment error:": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update comment"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Comment updated successfully"})
 }

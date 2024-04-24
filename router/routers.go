@@ -33,6 +33,7 @@ func Router() *gin.Engine {
 	{
 		comments.POST("", controllers.CommentsController{}.CreateComment)
 		comments.GET("", controllers.CommentsController{}.GetCommentList)
+		comments.PUT("/:id", controllers.CommentsController{}.UpdateComment)
 	}
 
 	return r
