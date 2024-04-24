@@ -45,3 +45,10 @@ func UpdateComment(c Comment) (*mongo.UpdateResult, error) {
 	ret, err := dao.MonCollection.UpdateOne(context.Background(), filter, update)
 	return ret, err
 }
+
+func DeleteComment(id string) (*mongo.DeleteResult, error) {
+	filter := bson.M{"comment_id": id}
+
+	ret, err := dao.MonCollection.DeleteOne(context.Background(), filter)
+	return ret, err
+}

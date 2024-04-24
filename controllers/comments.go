@@ -77,3 +77,15 @@ func (com CommentsController) UpdateComment(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Comment updated successfully"})
 }
+
+func (com CommentsController) DeleteComment(c *gin.Context) {
+	commentId := c.Param("id")
+
+	_, err := mongodb.DeleteComment(commentId)
+	if err != nil {
+		logger.Error(map[string]interface{}{"[DeleteComment] mongodb.DeleteComment error:": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete comment"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Comment deleted successfully"})
+}
